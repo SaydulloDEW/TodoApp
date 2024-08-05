@@ -1,58 +1,73 @@
-import React, {useState, useEffect} from 'react'
-import { TodoForm } from './TodoForm'
+import React, { useState, useEffect } from 'react';
+import { TodoForm } from './TodoForm';
 import { v4 as uuidv4 } from 'uuid';
 import { Todo } from './Todo';
 import { EditTodoForm } from './EditTodoForm';
 uuidv4();
 
 export const TodoWrapperLocalStorage = () => {
-    const [todos, setTodos] = useState([])
+    const [employees, setEmployees] = useState([]);
 
     useEffect(() => {
-        const savedTodos = JSON.parse(localStorage.getItem('todos')) || [];
-        setTodos(savedTodos);
+        const savedEmployees = JSON.parse(localStorage.getItem('employees')) || [];
+        if (savedEmployees.length === 0) {
+            fetch('https://reqres.in/api/users')
+                .then(response => response.json())
+                .then(data => {
+                    const initialEmployees = data.data.map(user => ({
+                        id: user.id,
+                        name: user.first_name + ' ' + user.last_name,
+                        avatar: user.avatar,
+                        completed: false,
+                        isEditing: false
+                    }));
+                    setEmployees(initialEmployees);
+                    localStorage.setItem('employees', JSON.stringify(initialEmployees));
+                });
+        } else {
+            setEmployees(savedEmployees);
+        }
     }, []);
 
-    const addTodo = todo => {
-        const newTodos = [...todos, {id: uuidv4(), task: todo, completed: false, isEditing: false}];
-        setTodos(newTodos);
-        localStorage.setItem('todos', JSON.stringify(newTodos));
-    }
+    const addEmployee = name => {
+        const newEmployees = [...employees, { id: uuidv4(), name, avatar: '', completed: false, isEditing: false }];
+        setEmployees(newEmployees);
+        localStorage.setItem('employees', JSON.stringify(newEmployees));
+    };
 
     const toggleComplete = id => {
-        const newTodos = todos.map(todo => todo.id === id ? {...todo, completed: !todo.completed} : todo);
-        setTodos(newTodos);
-        localStorage.setItem('todos', JSON.stringify(newTodos));
-    }
+        const newEmployees = employees.map(employee => employee.id === id ? { ...employee, completed: !employee.completed } : employee);
+        setEmployees(newEmployees);
+        localStorage.setItem('employees', JSON.stringify(newEmployees));
+    };
 
-    const deleteTodo = id => {
-        const newTodos = todos.filter(todo => todo.id !== id);
-        setTodos(newTodos);
-        localStorage.setItem('todos', JSON.stringify(newTodos));
-    }
+    const deleteEmployee = id => {
+        const newEmployees = employees.filter(employee => employee.id !== id);
+        setEmployees(newEmployees);
+        localStorage.setItem('employees', JSON.stringify(newEmployees));
+    };
 
-    const editTodo = id => {
-        setTodos(todos.map(todo => todo.id === id ? {...todo, isEditing: !todo.isEditing} : todo))
-    }
+    const editEmployee = id => {
+        setEmployees(employees.map(employee => employee.id === id ? { ...employee, isEditing: !employee.isEditing } : employee));
+    };
 
-    const editTask = (task, id) => {
-        const newTodos = todos.map(todo => todo.id === id ? {...todo, task, isEditing: !todo.isEditing} : todo);
-        setTodos(newTodos);
-        localStorage.setItem('todos', JSON.stringify(newTodos));
-    }
-  return (
-    <div className='TodoWrapper'>
-        <h1>Get Things Done!</h1>
-        <TodoForm addTodo={addTodo} />
-        {todos.map((todo, index) => (
-            todo.isEditing ? (
-                <EditTodoForm editTodo={editTask} task={todo} />
-            ) : (
-                <Todo task={todo} key={index} toggleComplete={toggleComplete} deleteTodo={deleteTodo} editTodo={editTodo} />
-            )
-            
-        ))}
-         
-    </div>
-  )
-}
+    const editEmployeeTask = (name, id) => {
+        const newEmployees = employees.map(employee => employee.id === id ? { ...employee, name, isEditing: !employee.isEditing } : employee);
+        setEmployees(newEmployees);
+        localStorage.setItem('employees', JSON.stringify(newEmployees));
+    };
+
+    return (
+        <div className='TodoWrapper'>
+            <h1>List of Employees</h1>
+            <TodoForm addEmployee={addEmployee} />
+            {employees.map((employee) => (
+                employee.isEditing ? (
+                    <EditTodoForm key={employee.id} editEmployee={editEmployeeTask} employee={employee} />
+                ) : (
+                    <Todo employee={employee} key={employee.id} toggleComplete={toggleComplete} deleteEmployee={deleteEmployee} editEmployee={editEmployee} />
+                )
+            ))}
+        </div>
+    );
+};

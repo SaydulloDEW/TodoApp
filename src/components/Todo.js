@@ -1,16 +1,18 @@
-import React from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
-import { faTrash } from '@fortawesome/free-solid-svg-icons'
+import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 
-export const Todo = ({task, deleteTodo, editTodo, toggleComplete}) => {
+export const Todo = ({ employee, deleteEmployee, editEmployee, toggleComplete }) => {
   return (
     <div className="Todo">
-        <p className={`${task.completed ? "completed" : "incompleted"}`} onClick={() => toggleComplete(task.id)}>{task.task}</p>
-        <div>
-        <FontAwesomeIcon className="edit-icon" icon={faPenToSquare} onClick={() => editTodo(task.id)} />
-        <FontAwesomeIcon className="delete-icon" icon={faTrash} onClick={() => deleteTodo(task.id)} />
-        </div>
+      <img src={employee.avatar} alt={employee.name} />
+      <p className={`${employee.completed ? "completed" : "incompleted"}`} onClick={() => toggleComplete(employee.id)}>
+        {employee.name}
+      </p>
+      <div>
+        <FontAwesomeIcon className="edit-icon" icon={faPenToSquare} onClick={() => editEmployee(employee.id)} />
+        <FontAwesomeIcon className="delete-icon" icon={faTrash} onClick={() => deleteEmployee(employee.id)} />
+      </div>
     </div>
-  )
-}
+  );
+};
